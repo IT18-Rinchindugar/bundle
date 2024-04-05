@@ -84,7 +84,7 @@ const translationService = async (sentence) => {
 const translate = async (queuePayload) => {
   try {
     const { id, sentence, source } = queuePayload;
-    const mnTranslation = await transltionService(sentence);
+    const mnTranslation = await translationService(sentence);
 
     const db = await connectToDB();
     const collection = db.collection("result");
