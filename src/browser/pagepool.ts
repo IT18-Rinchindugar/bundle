@@ -53,6 +53,7 @@ export default class PagePool {
 				executablePath: executablePath(),
 				// executablePath: "/usr/bin/chromium-browser",
 				userDataDir: "./tmp/translateer-data",
+				args: ['--no-sandbox'],
 			});
 		console.log("browser launched");
 	}
