@@ -13,7 +13,7 @@ const { QUEUE_SERVICE_URL } = process.env;
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const transltionRequest = async (sentence) => {
+const translationRequest = async (sentence) => {
   return await axios.get(`http://0.0.0.0:${PORT}/api`, {
     params: {
       from: "en",
@@ -30,13 +30,21 @@ const transltionRequest = async (sentence) => {
 const queueService = async () => {
   let queueResponse = await axios.get(QUEUE_SERVICE_URL);
 
-  const { status } = queueResponse;
+  const { status: queueStatus } = queueResponse;
 
-  // retry queue service
-  while (status !== 200) {
-    console.log("retrying get queue service...");
-    queueResponse = await axios.get(QUEUE_SERVICE_URL);
-    await delay(3000);
+  if (queueStatus !== 200) {
+    // retry queue service
+    while (true) {
+      console.log("retrying get queue service...");
+      queueResponse = await axios.get(QUEUE_SERVICE_URL);
+
+      const { status } = queueResponse;
+
+      if (status === 200) {
+        break;
+      }
+      await delay(3000);
+    }
   }
 
   const {
@@ -46,15 +54,24 @@ const queueService = async () => {
   return payload;
 };
 
-const transltionService = async (sentence) => {
-  let translationResponse = await transltionRequest(sentence);
+const translationService = async (sentence) => {
+  let translationResponse = await translationRequest(sentence);
   const { status: translationStatus } = translationResponse;
 
   // retry translation service
-  while (translationStatus !== 200) {
-    console.log("retrying translation service...");
-    translationResponse = await transltionRequest(sentence);
-    await delay(3000);
+  if (translationStatus !== 200) {
+    while (true) {
+      console.log("retrying translation service...");
+      translationResponse = await translationRequest(sentence);
+
+      const { status } = queueResponse;
+
+      if (status === 200) {
+        break;
+      }
+
+      await delay(3000);
+    }
   }
 
   const {
@@ -96,9 +113,15 @@ const translate = async (queuePayload) => {
 };
 
 const tranlateLoop = async () => {
-  while (true) {
-    const queuePayload = await queueService();
-    await translate(queuePayload);
+  try {
+    while (true) {
+      const queuePayload = await queueService();
+      await translate(queuePayload);
+    }
+  } catch (error) {
+    console.log(error);
+    console.log("starting loop ...");
+    await tranlateLoop();
   }
 };
 
