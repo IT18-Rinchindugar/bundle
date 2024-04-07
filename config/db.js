@@ -5,7 +5,7 @@ let db = null;
 const connectToDB = async () => {
   if (!db) {
     const url =
-      "mongodb://tomyoTranslation:N9ITwOTg37BPx8P@10.0.4.124:27017";
+      "mongodb://tomyoTranslation:N9ITwOTg37BPx8P@10.0.4.124:27017?directConnection=true";
     const client = new MongoClient(url);
 
     await client.connect();
