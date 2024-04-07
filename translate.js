@@ -85,11 +85,11 @@ const translate = async (queuePayload) => {
   try {
     const { id, sentence, source } = queuePayload;
     const mnTranslation = await translationService(sentence);
-
+    
+    console.log({ mn: mnTranslation, en: sentence });
+    
     const db = await connectToDB();
     const collection = db.collection("result");
-
-    console.log({ mn: mnTranslation, en: sentence });
 
     await collection.insertOne({
       mn: mnTranslation,
