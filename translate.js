@@ -17,7 +17,7 @@ const translationRequest = async (sentence) => {
   return await axios.get(`http://0.0.0.0:${PORT}/api`, {
     params: {
       from: "en",
-      to: "mn",
+      to: "ru",
       text: sentence,
     },
     headers: {
@@ -84,15 +84,15 @@ const translationService = async (sentence) => {
 const translate = async (queuePayload) => {
   try {
     const { id, sentence, source } = queuePayload;
-    const mnTranslation = await translationService(sentence);
+    const ruTranslation = await translationService(sentence);
     
-    console.log({ mn: mnTranslation, en: sentence });
+    console.log({ ru: ruTranslation, en: sentence });
     
     const db = await connectToDB();
     const collection = db.collection("result");
 
     await collection.insertOne({
-      mn: mnTranslation,
+      ru: ruTranslation,
       en: sentence,
       source: source,
     });
